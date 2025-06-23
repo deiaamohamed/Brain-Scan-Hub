@@ -32,10 +32,11 @@ class CustomUserAdminForm(forms.ModelForm):
         return user
 class CustomUserAdmin(UserAdmin):
     form = CustomUserAdminForm
-    add_form = CustomUserAdminForm  # Optional: same for add view
+    add_form = CustomUserAdminForm
     model = User
+
     fieldsets = (
-        (None, {'fields': ( 'national_id', 'name','role', 'Ph_No','email','username', 'password',   )}),
+        (None, {'fields': ('national_id', 'name', 'role', 'Ph_No', 'email', 'password')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
@@ -43,25 +44,29 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('national_id', 'name', 'email', 'Ph_No', 'role','username', 'password')
-        }),
+            'fields': ('national_id', 'name', 'email', 'Ph_No', 'role', 'password')}
+        ),
     )
 
-    list_display = ('id', 'national_id', 'name', 'username','role', 'email')
-    search_fields = ('username', 'name', 'email')
+    list_display = ('id', 'national_id', 'name', 'role','Ph_No', 'email')
+    search_fields = ('national_id', 'name', 'email')
     ordering = ('id',)
 
 admin.site.register(User, CustomUserAdmin)
 
 @admin.register(Doctor)
 class doctor(admin.ModelAdmin):
-    list_display = ('id', 'get_name', 'specialty')
+    list_display = ('id', 'get_name', 'get_user_identifier','specialty')
     search_fields = ('user__name',)
     ordering = ('id',)
 
-    @admin.display(description='Doctor Name')
     def get_name(self, obj):
-        return obj.user.name 
+        return obj.user.name
+    get_name.short_description = 'Doctor Name'
+    
+    def get_user_identifier(self, obj):
+        return f"{obj.user.national_id} " if obj.user else "Unknown"
+
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
@@ -74,10 +79,10 @@ class patient(admin.ModelAdmin):
     list_display = ('id', 'get_name', 'Age', 'gender')
     search_fields = ('user__name',)
     ordering = ('id',)
-    @admin.display(description='patient')
+
     def get_name(self, obj):
         return obj.user.name
-    
+    get_name.short_description = 'Patient Name'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
@@ -90,14 +95,14 @@ class mri_image(admin.ModelAdmin):
     list_display = ('id', 'get_patient_name', 'get_doctor_name', 'date', 'image')
     search_fields = ('id',)
     ordering = ('id',)
-    
-    @admin.display(description='Patient')
+
     def get_patient_name(self, obj):
         return obj.patient.user.name
+    get_patient_name.short_description = 'Patient'
 
-    @admin.display(description='Doctor')
     def get_doctor_name(self, obj):
         return obj.doctor.user.name
+    get_doctor_name.short_description = 'Doctor'
 
     
     
@@ -107,19 +112,19 @@ class result(admin.ModelAdmin):
     search_fields = ('id',)
     ordering = ('id',)
 
-    @admin.display(description='Doctor')
     def get_doctor_name(self, obj):
         return obj.doctor.user.name
+    get_doctor_name.short_description = 'Doctor'
 
-    @admin.display(description='Patient')
     def get_patient_name(self, obj):
         return obj.patient.user.name
+    get_patient_name.short_description = 'Patient'
 
     
 @admin.register(ContactUs)
 class contactus(admin.ModelAdmin):
-    list_display=('id', 'issue_type','issue_title','priority_level','message','date','user')
+    list_display=('id', 'get_user_identifier', 'issue_type','issue_title','priority_level','message','date','user')
     search_fields=('id',)
     ordering=('id',)
-    
-    
+    def get_user_identifier(self, obj):
+        return f"{obj.user.national_id} " if obj.user else "Unknown"

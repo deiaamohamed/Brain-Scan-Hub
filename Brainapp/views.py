@@ -9,6 +9,7 @@ from django.views.decorators.csrf import requires_csrf_token
 import os
 from Brainapp.ML.biomedclip import generate_caption
 from Brainapp.ML.report_generator import generate_medical_report
+import re
 
 # Create your views here.
 @requires_csrf_token
@@ -23,7 +24,6 @@ def signup(request):
         return redirect('login')
     
     if request.method == 'POST':
-        username = request.POST.get('UserName')
         national_id = request.POST.get('National_id') 
         name = request.POST.get('Name')
         age = request.POST.get('Age')
@@ -32,30 +32,30 @@ def signup(request):
         Ph_No = request.POST.get('Phone')
         
         print("POST data:", request.POST)
-        
+
+        if not re.fullmatch(r'^\d{14}$', national_id):
+            messages.error(request, 'National ID must be exactly 14 digits.', extra_tags='signup')
+            return redirect('signup')
 
         if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email already exists.',extra_tags='signup')
+            messages.error(request, 'Email already exists.', extra_tags='signup')
             return redirect('signup')
         if User.objects.filter(Ph_No=Ph_No).exists():
-            messages.error(request, 'Phone Number already exists.',extra_tags='signup')
+            messages.error(request, 'Phone Number already exists.', extra_tags='signup')
             return redirect('signup')
-        
         if User.objects.filter(national_id=national_id).exists():
-            messages.error(request, 'National ID already exists.',extra_tags='signup')
+            messages.error(request, 'National ID already exists.', extra_tags='signup')
             return redirect('signup')
         
         try:
             with transaction.atomic():
                 user = User.objects.create_user(
-                    username=username,
                     national_id=national_id,
                     name=name,
                     role='patient',
                     Ph_No=Ph_No,
                     email=email
-                )
-                user.save()
+                ) #type: ignore
                 print("User created:", user)
 
                 patient = Patient.objects.create(
@@ -65,41 +65,53 @@ def signup(request):
                 )
                 print("Patient created:", patient)
 
-                messages.success(request, 'Patient registered successfully.',extra_tags='signup')
+                messages.success(request, 'Patient registered successfully.', extra_tags='signup')
                 return redirect('signup')
 
         except Exception as e:
             print("Error during signup:", str(e))
-            messages.error(request, f'An error occurred: {str(e)}',extra_tags='signup')
+            messages.error(request, f'An error occurred: {str(e)}', extra_tags='signup')
             return redirect('signup')
 
     return render(request, 'Brainapp/signup-patient.html')
+
 
 
 ###################################################################
 
 
 def loginpage(request):
-    if request.method=='POST':
-        national_id=request.POST.get('national_id')
-        name =request.POST.get('name')
+    if request.method == 'POST':
+        national_id = request.POST.get('national_id')
+        name = request.POST.get('name')
         print(f"POST data: {request.POST}")
+
+        # Detect role from ID format
+        if re.fullmatch(r'^D\d{3}$', national_id):
+            expected_role = 'doctor'
+        elif re.fullmatch(r'^R\d{3}$', national_id):
+            expected_role = 'admin'
+        elif re.fullmatch(r'^\d{14}$', national_id):
+            messages.error(request, 'Invalid ID or Name.', extra_tags='login')
+            return redirect('login')
+        else:
+            messages.error(request, 'Invalid ID format. Use D### for doctors or R### for receptionist.', extra_tags='login')
+            return redirect('login')
+
         try:
-            user = User.objects.get( national_id=national_id,name=name )
+            user = User.objects.get(national_id=national_id, name=name, role=expected_role)
             login(request, user)
             print(f"User authenticated: {user.name}, Role: {user.role}")
-            
-            if user.role=='admin':
+
+            if expected_role == 'admin':
                 return redirect('Admin_dashboard')
-            if user.role=='doctor':
-                return redirect('Doctor_dashboard')
             else:
-                messages.error(request, 'Invalid role. Please contact support.',extra_tags='login')
-                print("Invalid role detected")  
-                return redirect('login')
+                return redirect('Doctor_dashboard')
+
         except User.DoesNotExist:
-            messages.error(request, 'Invalid name or national ID.',extra_tags='login')
+            messages.error(request, 'Invalid credentials. Please check your ID and name.', extra_tags='login')
             return redirect('login')
+
     return render(request, 'Brainapp/index.html')
 
 ########################################################################################
@@ -139,7 +151,6 @@ def mri_analysis(request):  # modified by me
             user = User.objects.get(national_id=national_id)
             patient = Patient.objects.get(user=user)
 
-            # Create and save MRI entry
             mri = MRI_Image.objects.create(
                 doctor=doctor,
                 patient=patient,
@@ -149,9 +160,10 @@ def mri_analysis(request):  # modified by me
             # Path to saved image
             img_path = mri.image.path
 
-            # Run BioMedCLIP
+            # BioMedCLIP
             caption = generate_caption(img_path)
-            print(caption)
+            print(caption) 
+            # mistral 7b-instruct ,, mistral devrest small
             report = generate_medical_report(caption)
 
             # Save result
@@ -160,7 +172,7 @@ def mri_analysis(request):  # modified by me
                 patient=patient,
                 doctor=doctor,
                 report=report
-                # Optional: caption=caption (if you add it to model)
+               
             )
 
             messages.success(request, "MRI uploaded and analyzed successfully.", extra_tags='mri')
