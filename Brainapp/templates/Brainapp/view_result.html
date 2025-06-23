@@ -1,0 +1,12 @@
+<h2>Analysis Result</h2>
+<p><strong>Patient:</strong> {{ result.patient.user.full_name }}</p>
+<p><strong>Doctor:</strong> {{ result.doctor.user.full_name }}</p>
+<p><strong>Date:</strong> {{ result.date }}</p>
+
+<h3>MRI Image:</h3>
+<img src="{{ mri.image.url }}" alt="MRI" style="max-width: 400px;"/>
+
+<h3>Generated Report:</h3>
+<pre>{{ result.report }}</pre>
+
+<a href="{% url 'mri_analysis' %}">← Back to Analysis</a>
