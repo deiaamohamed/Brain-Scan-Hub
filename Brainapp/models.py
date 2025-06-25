@@ -44,7 +44,7 @@ class User(AbstractUser):
     
     USERNAME_FIELD = 'national_id'
     REQUIRED_FIELDS = ['name','Ph_No']
-    objects = UserManager()
+    objects = UserManager() 
 
     def __str__( self):
         return self.name

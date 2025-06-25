@@ -10,6 +10,8 @@ import os
 from Brainapp.ML.biomedclip import generate_caption
 from Brainapp.ML.report_generator import generate_medical_report
 import re
+from Brainapp.ML.Prediction_Script import predict_image
+import cv2
 
 # Create your views here.
 @requires_csrf_token
@@ -158,10 +160,14 @@ def mri_analysis(request):  # modified by me
             )
 
             # Path to saved image
-            img_path = mri.image.path
-
+            img_path=mri.image.path
+            result= predict_image(img_path)
+            
+            result_path = f"image/result_.png"
+            cv2.imwrite(result_path,result)
+            
             # BioMedCLIP
-            caption = generate_caption(img_path)
+            caption = generate_caption(result_path)
             print(caption) 
             # mistral 7b-instruct ,, mistral devrest small
             report = generate_medical_report(caption)
