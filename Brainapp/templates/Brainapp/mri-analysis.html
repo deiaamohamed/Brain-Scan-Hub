@@ -10,6 +10,53 @@
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <style>
+    #loadingOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255,255,255,0.85);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition: background 0.3s;
+    }
+    #loadingOverlay .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #fff;
+        padding: 2rem 3rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        animation: popIn 0.4s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    #loadingOverlay .fa-spinner {
+        font-size: 3rem;
+        color: #00a896;
+        margin-bottom: 1rem;
+        animation: spin 1s linear infinite;
+    }
+    #loadingOverlay p {
+        text-align: center;
+        margin: 0;
+        font-size: 1.2rem;
+        color: #333;
+        font-weight: 500;
+    }
+    @keyframes popIn {
+        0% { transform: scale(0.8); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
 
 </head>
 
@@ -114,7 +161,23 @@
             </div>
         </main>
     </div>
+    <div id="loadingOverlay">
+        <div class="loading-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Analyzing MRI, please wait...</p>
+        </div>
+    </div>
     <script src="{% static 'js/mri-analysis.js'%}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            });
+        }
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

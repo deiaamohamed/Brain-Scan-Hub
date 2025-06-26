@@ -173,16 +173,15 @@ def mri_analysis(request):  # modified by me
             report = generate_medical_report(caption)
 
             # Save result
-            Result.objects.create(
+            result_obj = Result.objects.create(
                 mri_image=mri,
                 patient=patient,
                 doctor=doctor,
                 report=report
-               
             )
 
             messages.success(request, "MRI uploaded and analyzed successfully.", extra_tags='mri')
-            return redirect('mri_analysis')
+            return redirect('analysis_result', mri_id=mri.id)
 
         except User.DoesNotExist:
             messages.error(request, "No User found with this National ID.", extra_tags='mri')
@@ -271,3 +270,14 @@ def contact_dev(request):
 ######################################################################################
 def issue_submitted_success(request):
     return render(request, 'Brainapp/issue_success.html')
+
+@login_required(login_url='/')
+def analysis_result(request, mri_id):
+    try:
+        mri = MRI_Image.objects.get(id=mri_id)
+        result = Result.objects.get(mri_image=mri)
+    except (MRI_Image.DoesNotExist, Result.DoesNotExist):
+        messages.error(request, "Result not found.")
+        return redirect('mri_analysis')
+    context = {'mri': mri, 'result': result}
+    return render(request, 'Brainapp/analysis_result.html', context)

@@ -12,4 +12,5 @@ urlpatterns = [
     path('signup/',views.signup,name='signup'),
     path('logout',views.logoutpage,name='logout'),
     path('mri/result/<int:mri_id>/', views.view_result, name='view_result'), # added by me
+    path('analysis_result/<int:mri_id>/', views.analysis_result, name='analysis_result'),
 ] 
