@@ -13,6 +13,23 @@
       .no-print {
         display: none !important;
       }
+      .report-scroll {
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+      }
+      .report-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      body {
+        font-size: 12pt;
+        line-height: 1.4;
+      }
+      .content-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+      }
     }
     </style>
 </head>
@@ -68,7 +85,7 @@
                     <img src="{{ mri.image.url }}" alt="MRI Image" style="max-width: 400px; border-radius: 8px; box-shadow: var(--card-shadow);"/>
                 </div>
                 <div class="report-card" style="margin-top:2rem;">
-                    <h3>Generated Report</h3>
+                    <h3>Report</h3>
                     <div class="report-scroll">{{ result.report|linebreaksbr }}</div>
                 </div>
                 <a href="{% url 'mri_analysis' %}" class="back-btn no-print" style="margin-top:2rem; display:inline-block;">
