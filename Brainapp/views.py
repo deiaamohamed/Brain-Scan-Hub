@@ -6,6 +6,9 @@ from django.contrib.auth import login ,logout
 from django.contrib import messages
 from django.db import transaction
 from django.views.decorators.csrf import requires_csrf_token
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 import os
 from Brainapp.ML.biomedclip import generate_caption
 from Brainapp.ML.report_generator import generate_medical_report
@@ -281,3 +284,56 @@ def analysis_result(request, mri_id):
         return redirect('mri_analysis')
     context = {'mri': mri, 'result': result}
     return render(request, 'Brainapp/analysis_result.html', context)
+
+@login_required(login_url='/')
+def send_report_email(request, mri_id):
+    """Send MRI report email to patient"""
+    if request.user.role != 'doctor':
+        messages.error(request, "Only doctors can send reports.")
+        return redirect('mri_analysis')
+    
+    try:
+        mri = MRI_Image.objects.get(id=mri_id)
+        result = Result.objects.get(mri_image=mri)
+        patient = result.patient
+        
+        # Check if patient has email
+        if not patient.user.email:
+            messages.error(request, "Patient does not have an email address registered.")
+            return redirect('analysis_result', mri_id=mri_id)
+        
+        # Prepare email content
+        subject = f"MRI Analysis Report - {patient.user.name}"
+        
+        # Render HTML email template
+        html_message = render_to_string('Brainapp/email_report_template.html', {
+            'result': result,
+            'mri': mri
+        })
+        
+        # Create plain text version
+        plain_message = strip_tags(html_message)
+        
+        # Send email
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email='brainscanhub001@gmail.com',
+                recipient_list=[patient.user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            
+            messages.success(request, f"Report sent successfully to {patient.user.email}")
+            
+        except Exception as e:
+            messages.error(request, f"Failed to send email: {str(e)}")
+            
+    except (MRI_Image.DoesNotExist, Result.DoesNotExist):
+        messages.error(request, "Result not found.")
+        return redirect('mri_analysis')
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+    
+    return redirect('analysis_result', mri_id=mri_id)

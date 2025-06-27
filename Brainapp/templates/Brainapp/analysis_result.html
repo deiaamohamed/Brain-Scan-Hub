@@ -62,9 +62,14 @@
             <div class="content-card">
                 <div class="page-header">
                     <h2>Analysis Result</h2>
-                    <button class="btn-primary no-print" onclick="window.print()">
-                        <i class="fas fa-print"></i> Print to PDF
-                    </button>
+                    <div class="button-group no-print">
+                        <button class="btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print to PDF
+                        </button>
+                        <a href="{% url 'send_report_email' mri_id=mri.id %}" class="btn-secondary" onclick="return confirm('Send this report to {{ result.patient.user.name }}?')">
+                            <i class="fas fa-envelope"></i> Send to Patient
+                        </a>
+                    </div>
                 </div>
                 <div class="info-grid">
                     <div class="info-item">

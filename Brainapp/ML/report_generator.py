@@ -1,8 +1,8 @@
 from openai import OpenAI
 
 
-FREE_API_KEY = "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"
-LARGE_API_KEY = "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"
+FREE_API_KEY = "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"
+LARGE_API_KEY = "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"
 
 OPENROUTER_HEADERS = {
     "HTTP-Referer": "http://127.0.0.1:8000",
@@ -25,6 +25,8 @@ def generate_medical_report(caption: str) -> str:
     prompt = (
         "You are an experienced radiologist. Based on the following high-level observation, "
         "generate a concise, professional, and medically accurate radiology report. "
+        "IMPORTANT: Do NOT include any information about the examining physician, doctor name, "
+        "sender information, or who performed the analysis. Focus only on the medical findings. "
         "Do not mention image format, colors, overlays, or patient information like name or age.\n\n"
         f"Observation: {caption}\n\n"
         "Radiology Report:"

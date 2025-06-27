@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRI Report - Brain Scan Hub</title>
+    <style>
+        /* Reset styles for email clients */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        
+        /* Main styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .info-section {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-grid {
+            display: table;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .info-row {
+            display: table-row;
+        }
+        
+        .info-label {
+            display: table-cell;
+            font-weight: 600;
+            color: #555;
+            padding: 8px 0;
+            width: 30%;
+        }
+        
+        .info-value {
+            display: table-cell;
+            color: #333;
+            padding: 8px 0;
+        }
+        
+        .report-section {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .report-title {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .report-content {
+            color: #333;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        .contact-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #34495e;
+        }
+        
+        .disclaimer {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background-color: #5a6fd8;
+        }
+        
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .content {
+                padding: 20px 15px !important;
+            }
+            
+            .header {
+                padding: 20px 15px !important;
+            }
+            
+            .header h1 {
+                font-size: 24px !important;
+            }
+            
+            .info-label, .info-value {
+                display: block !important;
+                width: 100% !important;
+                padding: 4px 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 Brain Scan Hub</h1>
+            <p>Your MRI Analysis Report</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Dear {{ result.patient.user.name }},
+            </div>
+            
+            <p>Your MRI scan analysis has been completed. Please find your detailed report below. This report has been prepared by our medical team and contains important information about your brain scan results.</p>
+            
+            <!-- Patient Information -->
+            <div class="info-section">
+                <h3 style="margin-top: 0; color: #667eea;">📋 Patient Information</h3>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-label">Patient Name:</div>
+                        <div class="info-value">{{ result.patient.user.name }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Patient ID:</div>
+                        <div class="info-value">{{ result.patient.user.national_id }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Age:</div>
+                        <div class="info-value">{{ result.patient.Age }} years</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Gender:</div>
+                        <div class="info-value">{{ result.patient.gender }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Information -->
+            <div class="info-section">
+                <h3 style="margin-top: 0; color: #667eea;">🔬 Analysis Details</h3>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-label">Examining Doctor:</div>
+                        <div class="info-value">Dr. {{ result.doctor.user.name }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Specialty:</div>
+                        <div class="info-value">{{ result.doctor.specialty }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Analysis Date:</div>
+                        <div class="info-value">{{ result.date|date:"F j, Y" }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Report ID:</div>
+                        <div class="info-value">#{{ result.id }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Report -->
+            <div class="report-section">
+                <div class="report-title">📄 Medical Report</div>
+                <div class="report-content">
+{{ result.report|linebreaksbr }}
+                </div>
+            </div>
+            
+            <!-- Important Notice -->
+            <div class="disclaimer">
+                <strong>⚠️ Important Notice:</strong><br>
+                This report is for informational purposes only and should not replace consultation with your healthcare provider. 
+                Please discuss these results with your doctor for proper interpretation and any necessary follow-up care.
+            </div>
+            
+            <!-- Contact Information -->
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="margin-bottom: 15px; font-weight: 600;">Need to discuss your results?</p>
+                <a href="mailto:{{ result.doctor.user.email }}" class="btn">Contact Your Doctor</a>
+                <a href="tel:{{ result.doctor.user.Ph_No }}" class="btn">Call Doctor</a>
+            </div>
+            
+            <p style="margin-top: 30px;">
+                If you have any questions about this report or need to schedule a follow-up appointment, 
+                please don't hesitate to contact our medical team.
+            </p>
+            
+            <p>
+                Best regards,<br>
+                <strong>The Brain Scan Hub Team</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Brain Scan Hub</strong></p>
+            <p>Advanced MRI Analysis & Patient Care</p>
+            
+            <div class="contact-info">
+                <p>📧 Email: brainscanhub001@gmail.com</p>
+                <p>📞 Phone: +1 (555) 123-4567</p>
+                <p>🌐 Website: www.brainscanhub.com</p>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 12px; opacity: 0.8;">
+                This email contains confidential medical information. Please ensure it is kept secure and private.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
