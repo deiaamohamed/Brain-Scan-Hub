@@ -1,8 +1,8 @@
 from openai import OpenAI
 
 
-FREE_API_KEY = "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"
-LARGE_API_KEY = "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"
+FREE_API_KEY = "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"
+LARGE_API_KEY = "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"
 
 OPENROUTER_HEADERS = {
     "HTTP-Referer": "http://127.0.0.1:8000",

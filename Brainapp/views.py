@@ -15,6 +15,8 @@ from Brainapp.ML.report_generator import generate_medical_report
 import re
 from Brainapp.ML.Prediction_Script import predict_image
 import cv2
+import tempfile
+from django.core.files import File
 
 # Create your views here.
 @requires_csrf_token
@@ -139,7 +141,7 @@ def doctor_dashboard(request):
     return render(request , 'Brainapp/doctor-home.html',{'staff_name': request.user.name})
 #####################################################################################################
 @login_required(login_url='/')
-def mri_analysis(request):  # modified by me
+def mri_analysis(request):
     if request.user.role != 'doctor':
         return redirect('login')
 
@@ -156,26 +158,35 @@ def mri_analysis(request):  # modified by me
             user = User.objects.get(national_id=national_id)
             patient = Patient.objects.get(user=user)
 
-            mri = MRI_Image.objects.create(
-                doctor=doctor,
-                patient=patient,
-                image=image
-            )
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_input:
+                for chunk in image.chunks():
+                    temp_input.write(chunk)
+                temp_input.flush()
+                temp_input_path = temp_input.name
+            
+            # Segment the image and check tumor presence
+            result, has_tumor = predict_image(temp_input_path)
 
-            # Path to saved image
-            img_path=mri.image.path
-            result= predict_image(img_path)
-            
-            result_path = f"image/result_.png"
-            cv2.imwrite(result_path,result)
-            
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_output:
+                cv2.imwrite(temp_output.name, result)
+                temp_output.flush()
+                temp_output_path = temp_output.name
+
+            with open(temp_output_path, 'rb') as f:
+                mri = MRI_Image.objects.create(
+                    doctor=doctor,
+                    patient=patient,
+                )
+                mri.image.save(f'segmented_{mri.id}.png', File(f), save=True)
+
             # BioMedCLIP
-            caption = generate_caption(result_path)
-            print(caption) 
-            # mistral 7b-instruct ,, mistral devrest small
+            if has_tumor:
+                caption = generate_caption(mri.image.path)
+            else:
+                caption = "No red heatmap present: normal brain MRI with no abnormal findings."
+
             report = generate_medical_report(caption)
 
-            # Save result
             result_obj = Result.objects.create(
                 mri_image=mri,
                 patient=patient,
@@ -194,6 +205,7 @@ def mri_analysis(request):  # modified by me
     patients = Patient.objects.all()
     context = {'patients': patients}
     return render(request, 'Brainapp/mri-analysis.html', context)
+
 
 ####################################################################################################
 @login_required(login_url='/') 

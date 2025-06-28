@@ -32,9 +32,11 @@ def predict_image(image_path):
     outputs = predictor(bright_img)
     instances = outputs["instances"].to("cpu")
 
+    tumor_detected = False
+
     # لو مفيش ماسكات أصلاً
-    if not instances.has("pred_masks"):
-        return  bright_img
+    if not instances.has("pred_masks") or len(instances.pred_masks) == 0:
+        return bright_img, tumor_detected
 
     masks = instances.pred_masks.numpy()  # [N, H, W]
 
@@ -42,6 +44,7 @@ def predict_image(image_path):
     mask_overlay = bright_img.copy()
 
     for mask in masks:
+        tumor_detected = True
         red_mask = np.zeros_like(mask_overlay, dtype=np.uint8)
         red_mask[:, :, 2] = 255  # لون أحمر (BGR)
         mask_bool = mask.astype(bool)
@@ -51,4 +54,4 @@ def predict_image(image_path):
             mask_overlay, 0.3, red_mask, 0.3, 0
         )[mask_bool]
 
-    return mask_overlay
+    return mask_overlay, tumor_detected

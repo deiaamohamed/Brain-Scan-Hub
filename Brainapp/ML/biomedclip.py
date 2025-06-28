@@ -28,15 +28,6 @@ labels = [
     "Abnormal mass visualized in the brain MRI.",
     "Tumor site identified in contrast-enhanced brain MRI.",
     "Localized tumor detected with strong signal intensity in the brain MRI.",
-    # No Tumor
-    "Normal brain MRI with no abnormal findings.",
-    "Healthy brain MRI with no evidence of tumor.",
-    "Brain MRI shows normal anatomy without abnormalities.",
-    "No signs of tumor observed in the brain MRI.",
-    "Clear brain MRI without any abnormal growth.",
-    "Brain MRI appears unremarkable and within normal limits.",
-    "Normal findings on brain MRI.",
-    "No pathological features identified in the brain MRI."
 ]
 
 # === Pre-encode all text features ===
