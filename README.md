@@ -16,6 +16,7 @@ Brain Scan Hub is a Django-based web application for MRI image analysis, patient
 ---
 
 ## Project Structure
+  check https://github.com/deiaamohamed/Brain-Scan-Hub/blob/main/SYSTEM_FLOW_DIAGRAM_CLEAN.md for more details
 
 ```
 Brain Scan Hub/
