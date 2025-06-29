@@ -417,3 +417,48 @@ input[type="number"] {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
     border-radius: 0.375rem;
 }
+
+[data-theme="dark"] .modal-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .modal-header {
+    background: linear-gradient(135deg, #2d2d2d, #444);
+    color: #fff;
+}
+
+[data-theme="dark"] .modal-body {
+    background: #121212;
+}
+
+[data-theme="dark"] .patients-table {
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 20px rgba(255,255,255,0.05);
+}
+
+[data-theme="dark"] .patients-table th {
+    background-color: #2a2a2a;
+    color: #ccc;
+    border-bottom: 1px solid #444;
+}
+
+[data-theme="dark"] .patients-table td {
+    background-color: #1e1e1e;
+    color: #ddd;
+    border-bottom: 1px solid #333;
+}
+
+[data-theme="dark"] .patient-search input {
+    background-color: #111;
+    border-color: #444;
+    color: #eee;
+}
+
+[data-theme="dark"] .close-modal {
+    color: #eee;
+}
+
+[data-theme="dark"] .no-patients {
+    color: #aaa;
+}

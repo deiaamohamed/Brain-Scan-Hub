@@ -9,6 +9,188 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css'  %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Patient Records Modal Styles */
+    .patient-records-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #00a896, #02c39a);
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .close-modal {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .close-modal:hover {
+        opacity: 0.8;
+    }
+
+    .modal-body {
+        padding: 2rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .patient-search {
+        margin-bottom: 1.5rem;
+    }
+
+    .patient-search input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .patient-search input:focus {
+        outline: none;
+        border-color: #00a896;
+    }
+
+    .patients-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .patients-table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .patients-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .patients-table tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .patients-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .patient-row {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .patient-row:hover {
+        background-color: #e3f2fd !important;
+        transform: translateX(5px);
+    }
+
+    .patient-row:active {
+        background-color: #bbdefb !important;
+    }
+
+    .no-patients {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .patient-id-field {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    .patient-id-field .form-group {
+        flex: 1;
+    }
+
+    .show-records-btn {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .show-records-btn:hover {
+        background: linear-gradient(135deg, #495057, #343a40);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .show-records-btn:active {
+        transform: translateY(0);
+    }
+    </style>
 </head>
 
 <body>
@@ -88,17 +270,21 @@
             <div class="content-card">
                 <form id="searchForm" class="search-form" method="POST">
                     {% csrf_token %}
-                    <div class="form-group">
-                        <label for="patientId">Patient ID</label>
-                        <div class="search-input-group">
-                            <input type="text"  id="patientId" name="national_id" required 
-                                   placeholder="Enter patient ID">
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa-search"></i>
-                                Search
-                            </button>
-                        </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        
+                        <input type="text" id="patientId" name="national_id" required 
+                        placeholder="Enter patient ID" class="form-control" style="max-width: 250px;">
+                        
+                        <button type="button" id="showRecordsBtn" class="btn btn-secondary d-flex align-items-center gap-1">
+                            <i class="fas fa-users"></i> Show Patient Records
+                        </button>
+
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1">
+                            <i class="fas fa-search"></i> Search
+                        </button>
                     </div>
+                    
+                    
                 </form>
 
                 {% if selected_patient %}
@@ -163,6 +349,135 @@
 
         </div>
     </div>
+
+<!-- Patient Records Modal -->
+<div id="patientRecordsModal" class="patient-records-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-users"></i> Patient Records</h3>
+            <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="patient-search">
+                <input type="text" id="patientSearch" placeholder="Search patients by name or ID...">
+            </div>
+            <div class="patients-table-container">
+                <table class="patients-table">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        {% for patient in patients %}
+                        <tr class="patient-row" data-patient-id="{{ patient.user.national_id }}">
+                            <td>{{ patient.user.national_id }}</td>
+                            <td>{{ patient.user.name }}</td>
+                            <td>{{ patient.Age }}</td>
+                            <td>{{ patient.gender }}</td>
+                            <td>{{ patient.user.email|default:"-" }}</td>
+                            <td>{{ patient.user.Ph_No }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="no-patients">No patients found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        });
+    }
+
+    // Patient Records Modal Functionality
+    const modal = document.getElementById('patientRecordsModal');
+    const showRecordsBtn = document.getElementById('showRecordsBtn');
+    const closeModal = document.getElementById('closeModal');
+    const patientSearch = document.getElementById('patientSearch');
+    const patientsTableBody = document.getElementById('patientsTableBody');
+    const patientIdInput = document.getElementById('patientId');
+
+    // Show modal
+    showRecordsBtn.addEventListener('click', function() {
+        modal.style.display = 'block';
+        patientSearch.focus();
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Search functionality
+    patientSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = patientsTableBody.querySelectorAll('.patient-row');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Double-click to select patient
+    patientsTableBody.addEventListener('dblclick', function(event) {
+        const row = event.target.closest('.patient-row');
+        if (row) {
+            const patientId = row.getAttribute('data-patient-id');
+            patientIdInput.value = patientId;
+            modal.style.display = 'none';
+            
+            // Show success feedback
+            const originalValue = patientIdInput.value;
+            patientIdInput.style.backgroundColor = '#d4edda';
+            patientIdInput.style.borderColor = '#c3e6cb';
+            setTimeout(() => {
+                patientIdInput.style.backgroundColor = '';
+                patientIdInput.style.borderColor = '';
+            }, 2000);
+        }
+    });
+
+    // Single click for visual feedback
+    patientsTableBody.addEventListener('click', function(event) {
+        const row = event.target.closest('.patient-row');
+        if (row) {
+            // Remove highlight from all rows
+            patientsTableBody.querySelectorAll('.patient-row').forEach(r => {
+                r.style.backgroundColor = '';
+            });
+            // Highlight clicked row
+            row.style.backgroundColor = '#e3f2fd';
+        }
+    });
+});
+</script>
+
     <script src="{% static 'js/patient-data.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
