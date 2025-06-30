@@ -323,6 +323,9 @@
                             <div class="report-description">
                                 {{ res.report|linebreaksbr }}
                             </div>
+                            <a href="{% url 'print_report' res.mri_image.id %}" class="btn btn-success mt-2" target="_blank">
+                                <i class="fas fa-print"></i> Print PDF
+                            </a>
                         </div>
                         <div style="flex:1; min-width: 120px;">
                             {% if res.mri_image.image %}

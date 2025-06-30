@@ -14,6 +14,7 @@ from Brainapp.ML.biomedclip import generate_caption
 from Brainapp.ML.report_generator import generate_medical_report
 import re
 from Brainapp.ML.Prediction_Script import predict_image
+from Brainapp.ML.predictor import is_brain_image
 import cv2
 import tempfile
 from django.core.files import File
@@ -163,6 +164,10 @@ def mri_analysis(request):
                     temp_input.write(chunk)
                 temp_input.flush()
                 temp_input_path = temp_input.name
+                check_brain = is_brain_image(temp_input_path)
+                if  not check_brain:
+                    messages.error(request, "The image is not a brain MRI.", extra_tags='mri')
+                    return redirect('mri_analysis')
             
             # Segment the image and check tumor presence
             result, has_tumor = predict_image(temp_input_path)
@@ -349,3 +354,14 @@ def send_report_email(request, mri_id):
         messages.error(request, f"An error occurred: {str(e)}")
     
     return redirect('analysis_result', mri_id=mri_id)
+
+@login_required(login_url='/')
+def print_report(request, mri_id):
+    try:
+        mri = MRI_Image.objects.get(id=mri_id)
+        result = Result.objects.get(mri_image=mri)
+    except (MRI_Image.DoesNotExist, Result.DoesNotExist):
+        messages.error(request, "Result not found.")
+        return redirect('patient_data')
+    context = {'mri': mri, 'result': result}
+    return render(request, 'Brainapp/print_report.html', context)
