@@ -165,9 +165,9 @@ def mri_analysis(request):
                 temp_input.flush()
                 temp_input_path = temp_input.name
                 check_brain = is_brain_image(temp_input_path)
-                if  not check_brain:
+                ''' if  not check_brain:
                     messages.error(request, "The image is not a brain MRI.", extra_tags='mri')
-                    return redirect('mri_analysis')
+                    return redirect('mri_analysis')'''
             
             # Segment the image and check tumor presence
             result, has_tumor = predict_image(temp_input_path)
